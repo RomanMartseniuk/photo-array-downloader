@@ -40,11 +40,6 @@
       document.getElementById("startBtn").addEventListener("click", downloadAll);
 
       async function downloadAll() {
-        if (!("showDirectoryPicker" in window)) {
-          alert("File System Access API is not supported in this browser.");
-          return;
-        }
-
         const raw = document.getElementById("urls").value.trim();
         if (!raw) {
           alert("Please paste URLs to download.");
@@ -57,14 +52,6 @@
           return;
         }
 
-        let directoryHandle;
-        try {
-          directoryHandle = await window.showDirectoryPicker();
-        } catch (e) {
-          alert("No directory selected. Download canceled.");
-          return;
-        }
-
         const startBtn = document.getElementById("startBtn");
         const statusEl = document.getElementById("status");
         startBtn.disabled = true;
@@ -72,32 +59,23 @@
 
         for (let i = 0; i < urls.length; i++) {
           const url = urls[i];
-          const filename = sanitizeFilename(url.split("/").pop().split("?")[0]) || `file_${i + 1}.jpg`;
+          const filename = sanitizeFilename(url.split("/").pop().split("?")[0]) || `file_${i + 1}.png`;
 
           try {
             const link = document.createElement("a");
             link.href = url;
             link.download = filename;
-
-            // Use File System Access API to save to the selected directory
-            const response = await fetch(url);
-            if (!response.ok) {
-              throw new Error(`Failed to fetch ${url}: ${response.status}`);
-            }
-            const blob = await response.blob();
-            const fileHandle = await directoryHandle.getFileHandle(filename, { create: true });
-            const writable = await fileHandle.createWritable();
-            await writable.write(blob);
-            await writable.close();
-
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
             successCount++;
           } catch (e) {
-            console.warn(`Error downloading ${url}:`, e);
+            console.warn(`Error triggering download for ${url}:`, e);
             failCount++;
           }
 
-          statusEl.textContent = `Downloading: ${i + 1}/${urls.length} (Success: ${successCount}, Failed: ${failCount})`;
-          await new Promise(resolve => setTimeout(resolve, 200));
+          statusEl.textContent = `Triggering download: ${i + 1}/${urls.length} (Success: ${successCount}, Failed: ${failCount})`;
+          await new Promise(resolve => setTimeout(resolve, 500)); // Delay to ensure downloads process
         }
 
         startBtn.disabled = false;
