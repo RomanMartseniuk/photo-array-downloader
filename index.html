@@ -4,89 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Photo Downloader</title>
-    <style>
-      body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        height: 100vh;
-        justify-content: center;
-        font-family: Arial, sans-serif;
-      }
-      textarea {
-        width: 500px;
-        height: 300px;
-        margin-bottom: 25px;
-      }
-      button {
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-      }
-      #status {
-        margin-top: 20px;
-        font-size: 14px;
-        color: #333;
-      }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
   </head>
   <body>
-    <h1>Enter your array of photo URLs</h1>
-    <textarea id="urls" placeholder="Paste URLs here, separated by newlines or semicolons"></textarea>
+    <h1 class="title">Enter your array of photo URLs</h1>
+    <textarea
+      class="url-input"
+      id="urls"
+      placeholder="Paste URLs here"
+    ></textarea>
     <button id="startBtn">Download</button>
-    <div id="status">Ready</div>
-
-    <script>
-      document.getElementById("startBtn").addEventListener("click", downloadAll);
-
-      async function downloadAll() {
-        const raw = document.getElementById("urls").value.trim();
-        if (!raw) {
-          alert("Please paste URLs to download.");
-          return;
-        }
-
-        const urls = raw.replace(/^"|"$/g, "").split(/[\n;]+/).map(s => s.trim()).filter(Boolean);
-        if (urls.length === 0) {
-          alert("No valid URLs provided.");
-          return;
-        }
-
-        const startBtn = document.getElementById("startBtn");
-        const statusEl = document.getElementById("status");
-        startBtn.disabled = true;
-        let successCount = 0, failCount = 0;
-
-        for (let i = 0; i < urls.length; i++) {
-          const url = urls[i];
-          const filename = sanitizeFilename(url.split("/").pop().split("?")[0]) || `file_${i + 1}.png`;
-
-          try {
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            successCount++;
-          } catch (e) {
-            console.warn(`Error triggering download for ${url}:`, e);
-            failCount++;
-          }
-
-          statusEl.textContent = `Triggering download: ${i + 1}/${urls.length} (Success: ${successCount}, Failed: ${failCount})`;
-          await new Promise(resolve => setTimeout(resolve, 500)); // Delay to ensure downloads process
-        }
-
-        startBtn.disabled = false;
-        statusEl.textContent = `Completed — Success: ${successCount}, Failed: ${failCount}`;
-        alert(`Download completed! Success: ${successCount}, Failed: ${failCount}`);
-      }
-
-      function sanitizeFilename(name) {
-        if (!name) return "";
-        return name.replace(/[\/\\?%*:|"<>]/g, "_").replace(/\s+/g, "_").slice(0, 200);
-      }
-    </script>
+    <script src="./js/script.js"></script>
   </body>
 </html>
